@@ -34,27 +34,38 @@ class Card:
     def __repr__(self):
         return f"<{self.card_title} of {self.suit}"
 
-    def show(self):
-        print('┌───────┐')
-        print(f'| {self.card_title:<2}    |')
-        print('|       |')
-        print(f'|   {self.suit}   |')
-        print('|       |')
-        print(f'|    {self.card_title:>2} |')
-        print('└───────┘')
+    
+    def show_rows(self):
+        return [
+            '┌───────┐',
+            f'| {self.card_title:<2}    |',
+            '|       |',
+            f'|   {self.suit}   |',
+            '|       |',
+            f'|    {self.card_title:>2} |',
+            '└───────┘'
+        ]
+    
+    def hidden_rows():
+        return [
+            '┌───────┐',
+            '|░░░░░░░|',
+            '|░░░░░░░|',
+            '|░░░░░░░|',
+            '|░░░░░░░|',
+            '|░░░░░░░|',
+            '└───────┘'
+        ]
 
 class Game:
     def __init__(self):
         self.deck = []
-        self.shuffle()
+        self.show_dealer_card = False
         self.dealer = Player('bobert')
         self.player = Player('kevin')
 
     def shuffle(self):
-        self.deck = []
-        for suit in suits:
-            for card_value in card_values:
-                self.deck.append(Card(suit, card_value))
+        self.deck = [Card(suit, card_value) for suit in suits for card_value in card_values]
         random.shuffle(self.deck)
 
     def deal(self):
@@ -91,12 +102,36 @@ class Game:
             self.hit(self.dealer)
 
     def display(self):
+    # Player's hand
+        print("Player has:")
+        rows = [''] * 7
         for card in self.player.hand:
-            card.show()
-        print(f"Player has: {self.player.value}\n\n")
-        for card in self.dealer.hand:
-            card.show()
-        print(f"Dealer has: {self.dealer.value}\n")
+            card_display = card.show_rows()
+            for i in range(7):
+                rows[i] += card_display[i]
+
+        for row in rows:
+            print(row)
+        print(f"Total value: {self.player.value}\n")
+
+        # Dealer's hand
+        print("Dealer has:")
+        rows = [''] * 7
+        for i, card in enumerate(self.dealer.hand):
+            if i == 1 and not self.show_dealer_card:  # Hide the dealer's second card
+                card_display = Card.hidden_rows()
+            else:
+                card_display = card.show_rows()
+
+            for i in range(7):
+                rows[i] += card_display[i]
+
+        for row in rows:
+            print(row)
+        if self.show_dealer_card:
+            print(f"Total value: {self.dealer.value}\n")
+        else:
+            print(f"Total value: ??\n")
 
 # find value of each player's 2 cards
 # If dealer hand <= 17 must hit
@@ -107,28 +142,58 @@ class Game:
 # if stand, pass until dealer over 17
 # compare sum of card value - highest not over 21 wins
 # input would you like to play again?
+    
+    def play_again(self):
+        while True:
+            response = input("Would you like to play again? (y/n): ").lower()
+            if response == 'y':
+                clear_output()
+                self.reset()
+                self.shuffle()
+                self.deal()
+                self.display()
+                self.action()
+                break
+            elif response == 'n':
+                print("Thanks for playing! Goodbye!")
+                break
+            else:
+                print("Invalid input. Please enter 'y' or 'n'.")
+    
+    def reset(self):
+        clear_output()
+        self.player = Player('Moataz')
+        self.dealer = Player('Bobert')
+        self.show_dealer_card = False
+    
+    
     clear_output()
     def action(self):
-        print("\nHi friend! It's time to play blackjack!!\n")
+        print(f"\nHey welcome to the BlackJack table!\n")
         while True:
-            response = input("Would you like to: 1. Hit, or 2. Stand? ").lower()
-            if response == 'hit' or response == '1' or response == 'h':
-                clear_output()
+            response = input("Would you like to hit? Choose 'y' or 'n' ").lower()
+            if response == 'y':
                 self.hit(self.player)
+                clear_output()
                 self.display()
                 if self.player.value > 21:
-                    print("Bust! You lose.")
+                    print("Bust! You lose!")
+                    self.play_again()
                     break
-            elif response == 'stand' or response == '2' or response == 's':
-                clear_output()
+            elif response == 'n':
+                self.show_dealer_card = True
                 self.stand()
+                clear_output()
                 self.display()
+
                 if self.dealer.value > 21 or self.player.value > self.dealer.value:
                     print("You win!")
                 elif self.dealer.value == self.player.value:
                     print("You lose!")
                 else:
                     print("You lose!")
+
+                self.play_again()
                 break
             else:
                 print(f"'{response.title()}' is not one of the available options. Please select 'hit' or 'stand'.")
