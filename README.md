@@ -1,5 +1,5 @@
 
-![Logo](https://github.com/KMcClain23/blackjack_game/blob/main/logo.png)
+![Logo](https://github.com/12mmhamdan/Black_Jack/blob/main/logo.png)
 
 
 # Black Jack
@@ -9,7 +9,7 @@
 
 ## Demo
 
-![](https://github.com/KMcClain23/blackjack_game/blob/main/Demo.gif)
+![](https://github.com/12mmhamdan/Black_Jack/blob/main/Demo.gif)
 
 
 ## Documentation
